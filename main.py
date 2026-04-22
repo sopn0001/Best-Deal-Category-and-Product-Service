@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -17,7 +19,7 @@ app.add_middleware(
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 DB_NAME = os.getenv("DB_NAME", "bestdeal")
 
-client = AsyncIOMotorClient(MONGO_URL)
+client = AsyncIOMotorClient(MONGO_URL, serverSelectionTimeoutMS=10000)
 db = client[DB_NAME]
 
 
@@ -42,7 +44,13 @@ class Product(BaseModel):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    """Includes counts so you can see an empty DB vs a broken Mongo connection."""
+    try:
+        cats = await db.categories.count_documents({})
+        prods = await db.products.count_documents({})
+        return {"status": "ok", "categories": cats, "products": prods}
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"mongodb: {exc}") from exc
 
 
 # ── Categories ────────────────────────────────────────────────────────────────
@@ -67,7 +75,7 @@ async def delete_category(id: str):
 # ── Products ──────────────────────────────────────────────────────────────────
 
 @app.get("/products")
-async def get_products(category_id: str = None):
+async def get_products(category_id: Optional[str] = None):
     query = {"category_id": category_id} if category_id else {}
     return [to_doc(p) for p in await db.products.find(query).to_list(500)]
 

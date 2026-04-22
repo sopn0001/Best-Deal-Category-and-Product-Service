@@ -194,13 +194,24 @@ CATALOG = [
 
 
 def main(reset: bool) -> None:
-    client = MongoClient(MONGO_URL)
+    client = MongoClient(MONGO_URL, serverSelectionTimeoutMS=8000)
     db = client[DB_NAME]
 
-    if not reset and db.categories.count_documents({}) > 0:
-        print("Categories already exist. Use --reset to replace with sample data.")
-        client.close()
-        return
+    cat_count = db.categories.count_documents({})
+    prod_count = db.products.count_documents({})
+
+    if not reset:
+        # Old logic skipped whenever any category existed — if products were empty, nothing was ever inserted.
+        if cat_count > 0 and prod_count > 0:
+            print("Sample data already present (categories and products). Skipping.")
+            client.close()
+            return
+        if cat_count > 0 and prod_count == 0:
+            print("Repairing: categories exist but no products — clearing categories and seeding.")
+            db.categories.delete_many({})
+        elif prod_count > 0 and cat_count == 0:
+            print("Repairing: orphan products — clearing products and seeding.")
+            db.products.delete_many({})
 
     if reset:
         db.products.delete_many({})
