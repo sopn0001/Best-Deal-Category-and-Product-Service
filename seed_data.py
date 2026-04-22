@@ -43,7 +43,7 @@ CATALOG = [
                 "description": "Ergonomic 2.4 GHz mouse",
                 "price": 29.99,
                 "stock": 40,
-                "image": "https://images.unsplash.com/photo-1527814050087-379381547938?w=800&q=80",
+                "image": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&q=80",
             },
             {
                 "name": "USB-C Hub",
@@ -84,7 +84,7 @@ CATALOG = [
                 "description": "12-cup programmable drip brewer",
                 "price": 89.99,
                 "stock": 15,
-                "image": "https://images.unsplash.com/photo-1517668808823-a9f702aaa580?w=800&q=80",
+                "image": "https://images.unsplash.com/photo-1600096194534-95cf5ece04cf?w=800&q=80",
             },
             {
                 "name": "Chef Knife Set",
