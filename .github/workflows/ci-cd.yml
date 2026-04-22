@@ -10,7 +10,7 @@ env:
   IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/best-deal-category-and-product-service
 
 jobs:
-  build-and-push:
+  Build:
     runs-on: ubuntu-latest
 
     steps:
